@@ -24,39 +24,16 @@ function Lightbox({ onClose, children }: { onClose: () => void; children: React.
   );
 }
 
-function GradientPlaceholder({
-  aspect,
-  gradient,
-  label,
-  overlay,
-  onClick,
-}: {
-  aspect: string;
-  gradient: string;
-  label?: string;
-  overlay?: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`relative ${aspect} rounded-lg overflow-hidden cursor-pointer group hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300`}
-    >
-      <div className={`absolute inset-0 ${gradient}`} />
-      {overlay}
-      {label && <span className="absolute bottom-2 left-2 text-xs font-medium text-foreground/80">{label}</span>}
-    </button>
-  );
-}
+const reels = Array.from({ length: 6 }, (_, i) => `/reels/reel${i + 1}.mp4`);
 
 export default function PortfolioSection() {
   const [tab, setTab] = useState<Tab>("Reels");
   const [lightbox, setLightbox] = useState<{ type: string; index: number } | null>(null);
 
   return (
-    <section id="portafolio" className="py-24 px-4">
+    <section id="portfolio" className="py-24 px-4">
       <div className="container mx-auto max-w-5xl">
-        <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-center animate-on-scroll">Portafolio</h2>
+        <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-center animate-on-scroll">Portfolio</h2>
 
         {/* Tabs */}
         <div className="flex justify-center gap-2 mt-8 animate-on-scroll" data-delay="100">
@@ -76,18 +53,23 @@ export default function PortfolioSection() {
         {/* Reels */}
         {tab === "Reels" && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
-            {Array.from({ length: 6 }, (_, i) => (
-              <GradientPlaceholder
+            {reels.map((src, i) => (
+              <button
                 key={i}
-                aspect="aspect-[9/16]"
-                gradient="bg-gradient-to-br from-primary/60 to-accent/60"
-                overlay={
-                  <div className="absolute inset-0 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
-                    <Play className="text-foreground" size={32} />
-                  </div>
-                }
-                onClick={() => setLightbox({ type: "Reels", index: i })}
-              />
+                onClick={() => setLightbox({ type: "Reel", index: i })}
+                className="relative aspect-[9/16] rounded-lg overflow-hidden cursor-pointer group hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 bg-gradient-to-br from-primary/60 to-accent/60"
+              >
+                <video
+                  src={src}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+                <div className="absolute inset-0 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity bg-background/20">
+                  <Play className="text-foreground" size={32} />
+                </div>
+              </button>
             ))}
           </div>
         )}
@@ -97,22 +79,31 @@ export default function PortfolioSection() {
           <div className="mt-8 space-y-4">
             {/* Single post image */}
             <div className="max-w-md mx-auto">
-              <GradientPlaceholder
-                aspect="aspect-square"
-                gradient="bg-gradient-to-br from-secondary/60 to-primary/60"
+              <button
                 onClick={() => setLightbox({ type: "Post", index: 0 })}
-              />
+                className="relative aspect-square w-full rounded-lg overflow-hidden cursor-pointer group hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 bg-gradient-to-br from-secondary/60 to-primary/60"
+              >
+                <img
+                  src="/posts/post1.png"
+                  alt="Post"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </button>
             </div>
             {/* 2 logos side by side */}
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              {Array.from({ length: 2 }, (_, i) => (
-                <GradientPlaceholder
+              {["/logos/logo1.png", "/logos/logo2.png"].map((src, i) => (
+                <button
                   key={i}
-                  aspect="aspect-square"
-                  gradient="bg-gradient-to-br from-accent/60 to-secondary/60"
-                  label={`Logo ${i + 1}`}
                   onClick={() => setLightbox({ type: "Logo", index: i })}
-                />
+                  className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 bg-gradient-to-br from-accent/60 to-secondary/60"
+                >
+                  <img
+                    src={src}
+                    alt={`Logo ${i + 1}`}
+                    className="absolute inset-0 w-full h-full object-contain p-2"
+                  />
+                </button>
               ))}
             </div>
           </div>
@@ -121,15 +112,30 @@ export default function PortfolioSection() {
         {/* Lightbox */}
         {lightbox && (
           <Lightbox onClose={() => setLightbox(null)}>
-            {lightbox.type === "Reels" ? (
-              <div className="aspect-[9/16] max-h-[80vh] mx-auto rounded-lg overflow-hidden bg-gradient-to-br from-primary/60 to-accent/60 flex items-center justify-center">
-                <p className="text-foreground/60 text-sm">Reel {lightbox.index + 1}</p>
+            {lightbox.type === "Reel" ? (
+              <div className="aspect-[9/16] max-h-[80vh] mx-auto rounded-lg overflow-hidden">
+                <video
+                  src={reels[lightbox.index]}
+                  className="w-full h-full object-cover"
+                  controls
+                  autoPlay
+                />
+              </div>
+            ) : lightbox.type === "Post" ? (
+              <div className="aspect-square max-h-[80vh] mx-auto rounded-lg overflow-hidden">
+                <img
+                  src="/posts/post1.png"
+                  alt="Post"
+                  className="w-full h-full object-contain"
+                />
               </div>
             ) : (
-              <div className="aspect-square max-h-[80vh] mx-auto rounded-lg overflow-hidden bg-gradient-to-br from-secondary/60 to-primary/60 flex items-center justify-center">
-                <p className="text-foreground/60 text-sm">
-                  {lightbox.type === "Post" ? `Post ${lightbox.index + 1}` : `Logo ${lightbox.index + 1}`}
-                </p>
+              <div className="aspect-square max-h-[80vh] mx-auto rounded-lg overflow-hidden">
+                <img
+                  src={`/logos/logo${lightbox.index + 1}.png`}
+                  alt={`Logo ${lightbox.index + 1}`}
+                  className="w-full h-full object-contain"
+                />
               </div>
             )}
           </Lightbox>
