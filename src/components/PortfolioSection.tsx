@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Play } from "lucide-react";
 
-const tabs = ["Reels", "Posts", "Logos"] as const;
+const tabs = ["Reels", "Diseños"] as const;
 type Tab = (typeof tabs)[number];
 
 function Lightbox({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
@@ -33,7 +33,7 @@ function GradientPlaceholder({
 }: {
   aspect: string;
   gradient: string;
-  label: string;
+  label?: string;
   overlay?: React.ReactNode;
   onClick: () => void;
 }) {
@@ -44,14 +44,14 @@ function GradientPlaceholder({
     >
       <div className={`absolute inset-0 ${gradient}`} />
       {overlay}
-      <span className="absolute bottom-2 left-2 text-xs font-medium text-foreground/80">{label}</span>
+      {label && <span className="absolute bottom-2 left-2 text-xs font-medium text-foreground/80">{label}</span>}
     </button>
   );
 }
 
 export default function PortfolioSection() {
   const [tab, setTab] = useState<Tab>("Reels");
-  const [lightbox, setLightbox] = useState<{ type: Tab; index: number } | null>(null);
+  const [lightbox, setLightbox] = useState<{ type: string; index: number } | null>(null);
 
   return (
     <section id="portafolio" className="py-24 px-4">
@@ -81,7 +81,6 @@ export default function PortfolioSection() {
                 key={i}
                 aspect="aspect-[9/16]"
                 gradient="bg-gradient-to-br from-primary/60 to-accent/60"
-                label={`Reel ${i + 1}`}
                 overlay={
                   <div className="absolute inset-0 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
                     <Play className="text-foreground" size={32} />
@@ -93,33 +92,29 @@ export default function PortfolioSection() {
           </div>
         )}
 
-        {/* Posts */}
-        {tab === "Posts" && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
-            {Array.from({ length: 12 }, (_, i) => (
+        {/* Diseños */}
+        {tab === "Diseños" && (
+          <div className="mt-8 space-y-4">
+            {/* Single post image */}
+            <div className="max-w-md mx-auto">
               <GradientPlaceholder
-                key={i}
                 aspect="aspect-square"
                 gradient="bg-gradient-to-br from-secondary/60 to-primary/60"
-                label={`Post ${i + 1}`}
-                onClick={() => setLightbox({ type: "Posts", index: i })}
+                onClick={() => setLightbox({ type: "Post", index: 0 })}
               />
-            ))}
-          </div>
-        )}
-
-        {/* Logos */}
-        {tab === "Logos" && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
-            {Array.from({ length: 6 }, (_, i) => (
-              <GradientPlaceholder
-                key={i}
-                aspect="aspect-square"
-                gradient="bg-gradient-to-br from-accent/60 to-secondary/60"
-                label={`Logo ${i + 1}`}
-                onClick={() => setLightbox({ type: "Logos", index: i })}
-              />
-            ))}
+            </div>
+            {/* 2 logos side by side */}
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+              {Array.from({ length: 2 }, (_, i) => (
+                <GradientPlaceholder
+                  key={i}
+                  aspect="aspect-square"
+                  gradient="bg-gradient-to-br from-accent/60 to-secondary/60"
+                  label={`Logo ${i + 1}`}
+                  onClick={() => setLightbox({ type: "Logo", index: i })}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -133,7 +128,7 @@ export default function PortfolioSection() {
             ) : (
               <div className="aspect-square max-h-[80vh] mx-auto rounded-lg overflow-hidden bg-gradient-to-br from-secondary/60 to-primary/60 flex items-center justify-center">
                 <p className="text-foreground/60 text-sm">
-                  {lightbox.type === "Posts" ? `Post ${lightbox.index + 1}` : `Logo ${lightbox.index + 1}`}
+                  {lightbox.type === "Post" ? `Post ${lightbox.index + 1}` : `Logo ${lightbox.index + 1}`}
                 </p>
               </div>
             )}
